@@ -1,7 +1,7 @@
 package main
 
 import (
-	logredact "github.com/eddort/logrus-secret-remover-hook"
+	"github.com/eddort/logredact"
 	"github.com/sirupsen/logrus"
 )
 

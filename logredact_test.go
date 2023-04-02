@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"testing"
 
-	logredact "github.com/eddort/logrus-secret-remover-hook"
-	"github.com/eddort/logrus-secret-remover-hook/memoryhook"
+	"github.com/eddort/logredact"
+	"github.com/eddort/logredact/memoryhook"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )

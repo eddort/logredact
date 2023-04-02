@@ -1,7 +1,7 @@
 package main
 
 import (
-	logredact "github.com/eddort/logrus-secret-remover-hook"
+	"github.com/eddort/logredact"
 	"github.com/sirupsen/logrus"
 )
 
@@ -10,6 +10,7 @@ type MyStruct struct {
 	Password string `json:"password"`
 }
 
+// rename it to main
 func LogStruct() {
 	logger := logrus.New()
 	logger.SetFormatter(&logrus.JSONFormatter{})

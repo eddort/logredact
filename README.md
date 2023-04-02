@@ -1,24 +1,24 @@
 # Logrus Secret Remover Hook
 
-`logrus-secret-remover-hook` is a Logrus hook for removing sensitive information from log entries. This module can help you protect secrets in your logs by redacting them before the logs are written.
+Logredact is a Logrus hook for removing sensitive information from log entries. This module can help you protect secrets in your logs by redacting them before the logs are written.
 
 ## Installation
 
-To install the `logrus-secret-remover-hook`, run the following command:
+To install the `logredact`, run the following command:
 
 ```sh
-go get github.com/eddort/logrus-secret-remover-hook
+go get github.com/eddort/logredact
 ```
 
 ## Usage
 
-To use the logrus-secret-remover-hook, import it in your Go code and add it to your Logrus logger. Here's an example:
+To use the logredact, import it in your Go code and add it to your Logrus logger. Here's an example:
 
 ```go
 package main
 
 import (
-	logredact "github.com/eddort/logrus-secret-remover-hook"
+	"github.com/eddort/logredact"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,7 +44,7 @@ package main
 
 import (
 	"github.com/sirupsen/logrus"
-	"github.com/eddort/logrus-secret-remover-hook"
+	"github.com/eddort/logredact"
 )
 
 type MyStruct struct {
@@ -79,7 +79,7 @@ func main() {
 
 ## Configuration
 
-The logrus-secret-remover-hook takes an array of strings as first argument and `replacer` as the second argument. These strings represent the secrets you want to remove from your log entries. You can add as many secrets as needed:
+The logredact takes an array of strings as first argument and `replacer` as the second argument. These strings represent the secrets you want to remove from your log entries. You can add as many secrets as needed:
 
 ```go
 secrets := []string{"secret1", "secret2", "secret3"}

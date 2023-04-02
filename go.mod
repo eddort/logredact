@@ -1,4 +1,4 @@
-module github.com/eddort/logrus-secret-remover-hook
+module github.com/eddort/logredact
 
 go 1.20
 
