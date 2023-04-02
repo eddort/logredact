@@ -1,4 +1,4 @@
-package secretremoverhook
+package logredact
 
 import (
 	"reflect"
@@ -7,20 +7,20 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-type SecretRemoverHook struct {
+type LogRedact struct {
 	secrets  []string
 	replacer string
 }
 
-func New(secrets []string, replacer string) *SecretRemoverHook {
-	return &SecretRemoverHook{secrets: secrets, replacer: replacer}
+func New(secrets []string, replacer string) *LogRedact {
+	return &LogRedact{secrets: secrets, replacer: replacer}
 }
 
-func (h *SecretRemoverHook) Levels() []logrus.Level {
+func (h *LogRedact) Levels() []logrus.Level {
 	return logrus.AllLevels
 }
 
-func (h *SecretRemoverHook) Fire(entry *logrus.Entry) error {
+func (h *LogRedact) Fire(entry *logrus.Entry) error {
 	entry.Message = h.replaceSecrets(entry.Message)
 
 	for key, value := range entry.Data {
@@ -29,7 +29,7 @@ func (h *SecretRemoverHook) Fire(entry *logrus.Entry) error {
 	return nil
 }
 
-func (h *SecretRemoverHook) processValue(v reflect.Value) interface{} {
+func (h *LogRedact) processValue(v reflect.Value) interface{} {
 	if !v.IsValid() {
 		return nil
 	}
@@ -63,13 +63,13 @@ func (h *SecretRemoverHook) processValue(v reflect.Value) interface{} {
 	return v.Interface()
 }
 
-func (h *SecretRemoverHook) processValueRecursively(src, dest reflect.Value) {
+func (h *LogRedact) processValueRecursively(src, dest reflect.Value) {
 	for i := 0; i < src.NumField(); i++ {
 		dest.Field(i).Set(reflect.ValueOf(h.processValue(src.Field(i))))
 	}
 }
 
-func (h *SecretRemoverHook) replaceSecrets(s string) string {
+func (h *LogRedact) replaceSecrets(s string) string {
 	for _, secret := range h.secrets {
 		s = strings.Replace(s, secret, h.replacer, -1)
 	}

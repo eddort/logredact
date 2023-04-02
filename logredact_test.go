@@ -1,10 +1,10 @@
-package secretremoverhook_test
+package logredact_test
 
 import (
 	"io/ioutil"
 	"testing"
 
-	secretremoverhook "github.com/eddort/logrus-secret-remover-hook"
+	logredact "github.com/eddort/logrus-secret-remover-hook"
 	"github.com/eddort/logrus-secret-remover-hook/memoryhook"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
@@ -50,7 +50,7 @@ func setupLoggerWithMemoryHook(secrets []string) (*logrus.Logger, *memoryhook.Me
 	logger.SetOutput(ioutil.Discard)
 
 	memoryHook := memoryhook.New()
-	secretHook := secretremoverhook.New(secrets, "********")
+	secretHook := logredact.New(secrets, "********")
 
 	logger.AddHook(memoryHook)
 	logger.AddHook(secretHook)
