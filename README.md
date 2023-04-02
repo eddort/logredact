@@ -7,7 +7,7 @@
 To install the `logrus-secret-remover-hook`, run the following command:
 
 ```sh
-$ go get github.com/eddort/logrus-secret-remover-hook
+go get github.com/eddort/logrus-secret-remover-hook
 ```
 
 ## Usage
