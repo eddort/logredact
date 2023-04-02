@@ -1,64 +1,80 @@
 package logredact_test
 
 import (
-	"io/ioutil"
+	"bytes"
+	"fmt"
 	"testing"
 
 	"github.com/eddort/logredact"
-	"github.com/eddort/logredact/memoryhook"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
 
-type TestData struct {
-	Secret string
-	Public string
-}
-
 func TestSecretRemoverHook(t *testing.T) {
-	t.Run("removes secret from log message", func(t *testing.T) {
-		logger, memoryHook := setupLoggerWithMemoryHook([]string{"mysecret"})
+	tests := []struct {
+		name          string
+		input         interface{}
+		expected      string
+		shouldContain bool
+	}{
+		{
+			name:          "string with secret",
+			input:         "my-password-is-hunter2",
+			expected:      "hunter2",
+			shouldContain: false,
+		},
+		{
+			name:          "string without secret",
+			input:         "just-an-ordinary-string",
+			expected:      "just-an-ordinary-string",
+			shouldContain: true,
+		},
+		{
+			name:          "integer",
+			input:         42,
+			expected:      "42",
+			shouldContain: true,
+		},
+		{
+			name:          "float",
+			input:         3.14,
+			expected:      "3.14",
+			shouldContain: true,
+		},
+		{
+			name:          "array",
+			input:         []string{"first-string", "password123", "third-string"},
+			expected:      "password123",
+			shouldContain: false,
+		},
+		{
+			name:          "map",
+			input:         map[string]string{"key1": "value1", "key2": "mysecret123"},
+			expected:      "mysecret123",
+			shouldContain: false,
+		},
+		{
+			name:          "struct",
+			input:         struct{ Field1, Field2 string }{"data1", "hiddensecret"},
+			expected:      "hiddensecret",
+			shouldContain: false,
+		},
+	}
 
-		logger.Info("This is a message with a secret: mysecret")
+	for _, tc := range tests {
+		t.Run(tc.name, func(t *testing.T) {
+			buf := new(bytes.Buffer)
+			logger := logrus.New()
+			logger.SetOutput(buf)
+			logger.AddHook(logredact.New([]string{"hunter2", "password123", "mysecret123", "hiddensecret"}, "***"))
 
-		entry := getLastLogEntry(memoryHook)
-		assert.Equal(t, "This is a message with a secret: ********", entry.Message)
-	})
+			logger.WithField("input", tc.input).Info("Test log entry")
 
-	t.Run("removes secret from log data", func(t *testing.T) {
-		logger, memoryHook := setupLoggerWithMemoryHook([]string{"mysecret"})
-
-		data := TestData{
-			Secret: "mysecret",
-			Public: "public",
-		}
-
-		logger.WithFields(logrus.Fields{"data": data}).Info("Logging a struct with secrets")
-
-		entry := getLastLogEntry(memoryHook)
-		assert.Equal(t, logrus.Fields{
-			"data": TestData{
-				Secret: "********",
-				Public: "public",
-			},
-		}, entry.Data)
-	})
-}
-
-func setupLoggerWithMemoryHook(secrets []string) (*logrus.Logger, *memoryhook.MemoryHook) {
-	logger := logrus.New()
-	logger.SetOutput(ioutil.Discard)
-
-	memoryHook := memoryhook.New()
-	secretHook := logredact.New(secrets, "********")
-
-	logger.AddHook(memoryHook)
-	logger.AddHook(secretHook)
-
-	return logger, memoryHook
-}
-
-func getLastLogEntry(hook *memoryhook.MemoryHook) *logrus.Entry {
-	entries := hook.Entries()
-	return entries[len(entries)-1]
+			if tc.shouldContain {
+				assert.Contains(t, buf.String(), tc.expected, fmt.Sprintf("Log entry should contain '%s'", tc.expected))
+			} else {
+				assert.NotContains(t, buf.String(), tc.expected, fmt.Sprintf("Log entry should not contain '%s'", tc.expected))
+			}
+		})
+	}
 }

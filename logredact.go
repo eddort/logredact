@@ -58,6 +58,17 @@ func (h *LogRedact) processValue(v reflect.Value) interface{} {
 			newSlice.Index(i).Set(reflect.ValueOf(h.processValue(v.Index(i))))
 		}
 		return newSlice.Interface()
+
+	case reflect.Map:
+		newMap := reflect.MakeMap(v.Type())
+		iter := v.MapRange()
+		for iter.Next() {
+			k := iter.Key()
+			v := iter.Value()
+			newV := h.processValue(v)
+			newMap.SetMapIndex(k, reflect.ValueOf(newV))
+		}
+		return newMap.Interface()
 	}
 
 	return v.Interface()
