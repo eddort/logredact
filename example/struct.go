@@ -27,7 +27,6 @@ func LogStruct() {
 		Password: "mysecret1",
 	}
 
-	// Logging an object with sensitive data using WithFields
 	logger.WithFields(logrus.Fields{
 		"my_struct": myData,
 	}).Info("Logging a Go struct with sensitive data")
